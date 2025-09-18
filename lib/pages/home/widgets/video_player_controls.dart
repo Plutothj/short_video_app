@@ -31,6 +31,7 @@ class VideoPlayeControls extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
           FlickAutoHideChild(
+            autoHide: false,
             showIfVideoNotInitialized: false,
             child: Padding(
               padding: EdgeInsetsGeometry.only(top: 50.h),
@@ -98,27 +99,35 @@ class VideoPlayeControls extends ConsumerWidget {
             ),
           ),
           Expanded(
-            child: Stack(
-              children: [
-                Positioned(
-                  child: Center(
-                    child: FlickShowControlsAction(
-                      behavior: HitTestBehavior.translucent,
-                      child: Center(
-                        child: FlickAutoHideChild(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: FlickPlayToggle(
-                              size: 50,
-                              playChild: Image.asset(
-                                'assets/icons/play_center.png',
-                                width: 80.w,
-                                height: 80.h,
-                              ),
-                              pauseChild: Image.asset(
-                                'assets/icons/pause_center.png',
-                                width: 80.w,
-                                height: 80.h,
+            child: GestureDetector(
+              onTap: () {
+                videoPlayerManger?.togglePlay(flickManager!);
+                displayManager?.handleShowPlayerControls();
+              },
+              child: Stack(
+                children: [
+                  Positioned(
+                    child: Center(
+                      child: FlickShowControlsAction(
+                        behavior: HitTestBehavior.translucent,
+                        child: Center(
+                          child: FlickAutoHideChild(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: FlickPlayToggle(
+                                size: 50,
+                                playChild: Image.asset(
+                                  'assets/icons/play_center.png',
+                                  width: 80.w,
+                                  height: 80.h,
+                                ),
+                                pauseChild: Image.asset(
+                                  'assets/icons/pause_center.png',
+                                  width: 80.w,
+                                  height: 80.h,
+                                  // 透明图片
+                                  opacity: AlwaysStoppedAnimation(0),
+                                ),
                               ),
                             ),
                           ),
@@ -126,17 +135,12 @@ class VideoPlayeControls extends ConsumerWidget {
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  child: Column(
-                    children: [
-                      FlickShowControlsAction(
-                        behavior: HitTestBehavior.translucent,
-                      ),
+                  Positioned(child: Column(children: [
+                      
                     ],
-                  ),
-                ),
-              ],
+                  )),
+                ],
+              ),
             ),
           ),
           FlickAutoHideChild(

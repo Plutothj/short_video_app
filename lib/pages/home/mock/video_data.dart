@@ -4,13 +4,13 @@ Map<String, dynamic> shortVideoMockData = {
       "title": "Reel 1",
       "image": "images/rio_from_above_poster.jpg",
       "trailer_url":
-          "https://github.com/rohitprajapatii/assets/blob/main/reel1.mp4?raw=true",
+          "https://storage.clipdrama.com/demoVide/647/44328/trans_en_us_1752144653.mp4?Expires=1758197493&KeyName=storage&Signature=AbI08PtHHdDXqVdSiKvGRJzu3yg=",
     },
     {
       "title": "Reel 2",
       "image": "images/the_valley_poster.jpg",
       "trailer_url":
-          "https://github.com/rohitprajapatii/assets/blob/main/reel2.mp4?raw=true",
+          "https://storage.clipdrama.com/demoVide/647/44328/trans_en_us_1752144653.mp4?Expires=1758197493&KeyName=storage&Signature=AbI08PtHHdDXqVdSiKvGRJzu3yg=",
     },
     {
       "title": "Reel 3",

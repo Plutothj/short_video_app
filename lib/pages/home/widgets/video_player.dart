@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:video_player/video_player.dart';
@@ -40,6 +41,7 @@ class _VideoPlayerState extends State<VideoPlayer> {
     return FlickVideoPlayer(
       flickManager: flickManager,
       flickVideoWithControls: FlickVideoWithControls(
+        videoFit: BoxFit.fill,
         playerLoadingFallback: Positioned.fill(
           child: Stack(
             children: <Widget>[
@@ -47,11 +49,11 @@ class _VideoPlayerState extends State<VideoPlayer> {
                 child: Image.network(widget.image, fit: BoxFit.cover),
               ),
               Positioned(
-                right: 10,
-                top: 10,
+                right: 10.w,
+                top: 10.h,
                 child: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 20.w,
+                  height: 20.h,
                   child: CircularProgressIndicator(
                     backgroundColor: Colors.white,
                     strokeWidth: 4,
