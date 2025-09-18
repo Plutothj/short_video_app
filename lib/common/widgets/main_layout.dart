@@ -1,6 +1,8 @@
 // lib/pages/main_layout.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+// import 'package:short_video_flutter/theme/theme.dart';
+import 'package:short_video_flutter/common/widgets/custome_bottom_bar.dart';
 
 class MainLayout extends StatelessWidget {
   const MainLayout({super.key, required this.child});
@@ -27,32 +29,25 @@ class MainLayout extends StatelessWidget {
     }
 
     return Scaffold(
+      extendBody: true, // 让 body 延伸到底部导航栏下面
       body: child, // 显示当前 Tab 对应的页面
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // 避免 item 过多时样式错乱
-        currentIndex: currentIndex, // 当前选中的索引
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
-          BottomNavigationBarItem(icon: Icon(Icons.explore), label: '发现'),
-          BottomNavigationBarItem(icon: Icon(Icons.mail), label: '消息'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
-        ],
-        onTap: (index) {
-          // 点击时，使用 context.go 跳转到对应的页面
-          switch (index) {
-            case 0:
-              context.go('/');
-              break;
-            case 1:
-              context.go('/discover');
-              break;
-            case 2:
-              context.go('/inbox');
-              break;
-            case 3:
-              context.go('/profile');
-              break;
-          }
+
+      bottomNavigationBar: CustomBottomBar(
+        currentIndex: currentIndex,
+        onHomeTap: () {
+          context.go('/');
+        },
+        onDiscoverTap: () {
+          context.go('/discover');
+        },
+        onAddTap: () {
+          context.go('/add');
+        },
+        onInboxTap: () {
+          context.go('/inbox');
+        },
+        onProfileTap: () {
+          context.go('/profile');
         },
       ),
     );

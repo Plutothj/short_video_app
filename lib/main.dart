@@ -35,7 +35,7 @@ class MyApp extends ConsumerWidget {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: const Size(428, 926),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) => MaterialApp.router(
