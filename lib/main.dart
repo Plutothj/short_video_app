@@ -2,11 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:short_video_flutter/utils/logger.dart';
+import 'package:short_video_flutter/utils/http.dart';
 import 'package:short_video_flutter/routes/app_router.dart';
 import 'package:short_video_flutter/theme/theme.dart';
 import 'package:short_video_flutter/provider/theme_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化 HttpUtil
+  await HttpUtil().init();
+
   runApp(
     ProviderScope(
       observers: [LoggerObserver()], // 可选：调试用

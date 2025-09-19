@@ -2,7 +2,7 @@ import 'package:flick_video_player/flick_video_player.dart';
 
 import 'package:logger/logger.dart';
 
-class VideoPlayerManger {
+class VideoMultiPlayerManger {
   final List<FlickManager> _flickManagers = [];
   FlickManager? _activeManager;
   bool _isMute = false;
@@ -24,8 +24,8 @@ class VideoPlayerManger {
     if (_activeManager == flickManager) {
       _activeManager = null;
     }
-    flickManager.dispose();
     _flickManagers.remove(flickManager);
+    // 不要在这里 dispose，让调用方自己处理
   }
 
   togglePlay(FlickManager flickManager) {
@@ -73,9 +73,7 @@ class VideoPlayerManger {
   FlickManager? get activeManager => _activeManager;
 
   dispose() {
-    for (var manager in _flickManagers) {
-      manager.dispose();
-    }
+    // 只清理引用，不 dispose FlickManager（由各自的 VideoPlayer dispose）
     _flickManagers.clear();
     _activeManager = null;
   }

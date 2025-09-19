@@ -1,28 +1,33 @@
 import 'package:equatable/equatable.dart';
+import 'package:short_video_flutter/pages/home/model/video_item_model.dart';
 
 class HomeState extends Equatable {
-  final List<String> videos;
+  final List<VideoItemModel> videos;
   final int currentTab;
-  final List<Map<dynamic, dynamic>> tabList;
+  final List<dynamic> tabList;
+  final int currentIndex;
 
   const HomeState({
     required this.videos,
     required this.currentTab,
     required this.tabList,
+    required this.currentIndex,
   });
 
   HomeState copyWith({
-    List<String>? videos,
+    List<VideoItemModel>? videos,
     int? currentTab,
-    List<Map<dynamic, dynamic>>? tabList,
+    List<dynamic>? tabList,
+    int? currentIndex,
   }) {
     return HomeState(
       videos: videos ?? this.videos,
       currentTab: currentTab ?? this.currentTab,
       tabList: tabList ?? this.tabList,
+      currentIndex: currentIndex ?? this.currentIndex,
     );
   }
 
   @override
-  List<Object?> get props => [videos, currentTab, tabList];
+  List<Object?> get props => [videos, currentTab, tabList, currentIndex];
 }

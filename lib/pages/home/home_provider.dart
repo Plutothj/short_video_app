@@ -1,42 +1,104 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:short_video_flutter/pages/home/mock/video_data.dart';
+import 'package:short_video_flutter/utils/logger.dart';
 import 'package:short_video_flutter/pages/home/home_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:short_video_flutter/pages/home/api/index.dart';
+import 'package:short_video_flutter/pages/home/model/video_item_model.dart';
 
-final homeProvider = NotifierProvider<HomeNotifier, HomeState>(() {
+// 使用 AsyncNotifier 处理复杂的异步状态
+final homeProvider = AsyncNotifierProvider<HomeNotifier, HomeState>(() {
   return HomeNotifier();
 });
 
-class HomeNotifier extends Notifier<HomeState> {
+class HomeNotifier extends AsyncNotifier<HomeState> {
   @override
-  HomeState build() {
-    final items = shortVideoMockData['items'] as List<dynamic>;
+  Future<HomeState> build() async {
     return HomeState(
-      videos: items
-          .map((e) => (e as Map<String, dynamic>)['trailer_url'] as String)
-          .toList(),
+      videos: [],
       currentTab: 2,
       tabList: [
         {'title': 'Following', 'width': 77.w},
         {'title': 'Friends', 'width': 59.w},
         {'title': 'For You', 'width': 60.w},
       ],
+      currentIndex: 0,
     );
   }
 
-  void setVideos(List<Map<String, dynamic>> videos) {
-    state = state.copyWith(
-      videos: videos.map((e) => e['trailer_url'] as String).toList(),
-    );
-  }
+  // 3. 优雅的异步方法处理
+  Future<void> loadPlayerData() async {
+    // 设置加载状态
+    state = const AsyncValue.loading();
 
-  void setCurrentTab(int currentTab) {
-    if (state.currentTab != currentTab) {
-      state = state.copyWith(currentTab: currentTab);
+    try {
+      // 并行请求多个接口
+      final results = await Future.wait([
+        PlayerServices.getPlayerDetail({'drama_id': 49}),
+        PlayerServices.getPlayerPage({'drama_id': 49, 'page': 1}),
+      ]);
+
+      final playerDetail = results[0];
+      final playerPage = results[1];
+      logger.d('PlayerDetail: $playerDetail');
+      logger.d('PlayerPage: ${playerPage.toString()}');
+
+      // 合并数据并更新状态
+      final currentState = state.value ?? await build();
+
+      // 安全地提取视频数据
+      final pageVideos = <VideoItemModel>[];
+
+      if (playerPage['list'] != null && playerPage['list'] is List) {
+        for (var item in playerPage['list']) {
+          try {
+            if (item != null && item is Map<String, dynamic>) {
+              // 确保必需字段存在并有默认值
+              final videoItem = VideoItemModel(
+                ep: item['ep']?.toString() ?? '',
+                coverUrl: item['cover_url']?.toString() ?? '',
+                like: item['like'] ?? 0,
+                like_number: item['like_number'] ?? 0,
+                collect: item['collect'] ?? 0,
+                collect_number: item['collect_number'] ?? 0,
+              );
+              pageVideos.add(videoItem);
+            }
+          } catch (e) {
+            logger.d('解析视频数据失败: $e, 数据: $item');
+            // 跳过有问题的数据项
+            continue;
+          }
+        }
+      }
+
+      state = AsyncValue.data(currentState.copyWith(videos: pageVideos));
+    } catch (error, stackTrace) {
+      // 错误处理
+      state = AsyncValue.error(error, stackTrace);
     }
   }
 
-  void setTabList(List<Map<dynamic, dynamic>> tabList) {
-    state = state.copyWith(tabList: tabList);
+  // 4. 同步方法保持简单
+  Future<void> setCurrentTab(int currentTab) async {
+    final currentState = state.value;
+    if (currentState != null && currentState.currentTab != currentTab) {
+      state = AsyncValue.data(currentState.copyWith(currentTab: currentTab));
+    }
+  }
+
+  Future<void> setTabList(List<Map<dynamic, dynamic>> tabList) async {
+    final currentState = state.value;
+    if (currentState != null) {
+      state = AsyncValue.data(currentState.copyWith(tabList: tabList));
+    }
+  }
+
+  Future<void> setCurrentIndex(int currentIndex) async {
+    final currentState = state.value;
+    if (currentState != null) {
+      state = AsyncValue.data(
+        currentState.copyWith(currentIndex: currentIndex),
+      );
+    }
   }
 }

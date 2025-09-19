@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:short_video_flutter/utils/logger.dart';
+import 'package:short_video_flutter/utils/toast.dart';
 
 class HttpUtil {
   static final HttpUtil _instance = HttpUtil._internal();
@@ -38,7 +38,8 @@ class HttpUtil {
         onRequest: (options, handler) async {
           // 异步获取 SharedPreferences
 
-          final token = prefs.getString('token') ?? '';
+          final token =
+              'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJjbGlwZHJhbWFfc2VydmljZSIsImF1ZCI6ImNsaXBkcmFtYV9jbGllbnQiLCJpYXQiOjE3NDM0OTc4MjIsIm5iZiI6MTc0MzQ5NzgyMiwiZXhwIjoiMzYwMCIsInVpZCI6MjY0NTN9.Q33OkK1oWIdOgHhwdnVd8i9D_v-N5LXgB-t95kdoP7M';
 
           // 动态添加 token 到请求头
           options.headers['token'] = token;
@@ -121,12 +122,14 @@ class HttpUtil {
         errorMsg = 'An unknown network error occurred.';
         break;
     }
-    Get.snackbar(
-      'Network Error',
-      errorMsg,
-      snackPosition: SnackPosition.BOTTOM,
-      backgroundColor: Colors.redAccent,
-      colorText: Colors.white,
-    );
+    logger.d('errorMsg: $errorMsg');
+    showToast(errorMsg);
+    // Get.snackbar(
+    //   'Network Error',
+    //   errorMsg,
+    //   snackPosition: SnackPosition.BOTTOM,
+    //   backgroundColor: Colors.redAccent,
+    //   colorText: Colors.white,
+    // );
   }
 }

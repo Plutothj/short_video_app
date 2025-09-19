@@ -22,10 +22,12 @@ class MainLayout extends StatelessWidget {
       currentIndex = 0; // 首页
     } else if (currentLocation == '/discover') {
       currentIndex = 1; // 发现
-    } else if (currentLocation == '/inbox') {
+    } else if (currentLocation == '/add') {
       currentIndex = 2; // 消息
+    } else if (currentLocation == '/inbox') {
+      currentIndex = 3; // 个人 页
     } else if (currentLocation == '/profile') {
-      currentIndex = 3; // 个人页
+      currentIndex = 4; // 个人页
     }
 
     return Scaffold(
