@@ -48,7 +48,7 @@ class VideoPlayer extends HookConsumerWidget {
       () => FlickManager(
         videoPlayerController: VideoPlayerController.networkUrl(Uri.parse(url))
           ..setLooping(true), // 关闭循环播放，让 onVideoEnd 可以触发
-        autoPlay: true,
+        autoPlay: false,
         onVideoEnd: () {
           logger.d("onVideoEnd");
           pageController.nextPage(

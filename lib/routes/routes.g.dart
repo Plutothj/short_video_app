@@ -11,6 +11,7 @@ List<RouteBase> get $appRoutes => [
   $loginRoute,
   $homeRoute,
   $discoverRoute,
+  $trendingSoundsRoute,
   $inboxRoute,
   $profileRoute,
 ];
@@ -138,6 +139,32 @@ RouteBase get $homeRoute =>
 
 RouteBase get $discoverRoute =>
     GoRouteData.$route(path: '/discover', factory: $DiscoverRoute._fromState);
+
+RouteBase get $trendingSoundsRoute => GoRouteData.$route(
+  path: '/trending-sounds',
+  factory: $TrendingSoundsRoute._fromState,
+);
+
+mixin $TrendingSoundsRoute on GoRouteData {
+  static TrendingSoundsRoute _fromState(GoRouterState state) =>
+      const TrendingSoundsRoute();
+
+  @override
+  String get location => GoRouteData.$location('/trending-sounds');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
 
 RouteBase get $inboxRoute =>
     GoRouteData.$route(path: '/inbox', factory: $InboxRoute._fromState);

@@ -125,12 +125,13 @@ class HomeScreen extends HookConsumerWidget {
                 height: MediaQuery.of(context).size.height,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(5),
-                  child: VideoPlayer(
-                    pageController: pageController,
-                    url: homeState.videos[index].ep,
-                    flickMultiManager: playMuitManger,
-                    image: homeState.videos[index].coverUrl, // 使用本地资源作为占位图片
-                  ),
+                  child: Container(color: Colors.red),
+                  // VideoPlayer(
+                  //   pageController: pageController,
+                  //   url: homeState.videos[index].ep,
+                  //   flickMultiManager: playMuitManger,
+                  //   image: homeState.videos[index].coverUrl, // 使用本地资源作为占位图片
+                  // ),
                 ),
               );
             },
