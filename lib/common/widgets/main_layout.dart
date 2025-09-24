@@ -23,9 +23,9 @@ class MainLayout extends StatelessWidget {
     } else if (currentLocation == '/discover') {
       currentIndex = 1; // 发现
     } else if (currentLocation == '/add') {
-      currentIndex = 2; // 消息
+      currentIndex = 2; // 拍视频
     } else if (currentLocation == '/inbox') {
-      currentIndex = 3; // 个人 页
+      currentIndex = 3; // 消息
     } else if (currentLocation == '/profile') {
       currentIndex = 4; // 个人页
     }

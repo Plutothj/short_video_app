@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:short_video_flutter/theme/theme.dart';
 
-class CustomBottomBar extends StatelessWidget {
+class CustomBottomBar extends HookWidget {
   final int currentIndex;
   final VoidCallback? onHomeTap;
   final VoidCallback? onDiscoverTap;
@@ -22,6 +23,7 @@ class CustomBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isRotate = useState(false);
     return Container(
       height: 90.h,
       decoration: BoxDecoration(
@@ -52,18 +54,27 @@ class CustomBottomBar extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(bottom: 10.h),
             child: GestureDetector(
-              onTap: onAddTap,
-              child: Container(
-                width: 40.w,
-                height: 40.h,
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.add, color: Colors.white, size: 24),
-                  onPressed: onAddTap,
-                  padding: EdgeInsets.zero,
+              // 当点击的时候旋转45度
+              child: AnimatedRotation(
+                turns: isRotate.value ? 0.125 : 0,
+
+                duration: Duration(milliseconds: 300),
+
+                child: Container(
+                  width: 40.w,
+                  height: 40.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.add, color: Colors.white, size: 24),
+                    onPressed: () {
+                      // IconButton整个AnimatedRotation旋转45度
+                      isRotate.value = !isRotate.value;
+                    },
+                    padding: EdgeInsets.zero,
+                  ),
                 ),
               ),
             ),
