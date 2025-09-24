@@ -56,7 +56,7 @@ class HashlogListItem extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => {context.push('/trending-sounds')},
+                    onPressed: () => {context.push('/trending-hashtag')},
                     icon: Image.asset(
                       'assets/icons/light_arrow.webp',
                       width: 24.w,

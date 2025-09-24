@@ -12,6 +12,7 @@ List<RouteBase> get $appRoutes => [
   $homeRoute,
   $discoverRoute,
   $trendingSoundsRoute,
+  $trendingHashtagRoute,
   $inboxRoute,
   $profileRoute,
 ];
@@ -151,6 +152,32 @@ mixin $TrendingSoundsRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/trending-sounds');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $trendingHashtagRoute => GoRouteData.$route(
+  path: '/trending-hashtag',
+  factory: $TrendingHashtagRoute._fromState,
+);
+
+mixin $TrendingHashtagRoute on GoRouteData {
+  static TrendingHashtagRoute _fromState(GoRouterState state) =>
+      const TrendingHashtagRoute();
+
+  @override
+  String get location => GoRouteData.$location('/trending-hashtag');
 
   @override
   void go(BuildContext context) => context.go(location);

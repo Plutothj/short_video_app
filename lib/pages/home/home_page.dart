@@ -8,7 +8,7 @@ import 'package:short_video_flutter/utils/logger.dart';
 
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:short_video_flutter/pages/home/widgets/video_player_manger.dart';
-import 'package:short_video_flutter/pages/home/widgets/video_player.dart';
+// import 'package:short_video_flutter/pages/home/widgets/video_player.dart';
 
 import 'package:short_video_flutter/pages/home/home_provider.dart';
 // import 'package:short_video_flutter/pages/home/hooks/use_debounced_page_listener.dart';

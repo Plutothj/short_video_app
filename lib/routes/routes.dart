@@ -7,6 +7,7 @@ import 'package:short_video_flutter/pages/inbox/inbox_page.dart';
 import 'package:short_video_flutter/pages/discover/discover_page.dart';
 import 'package:short_video_flutter/common/widgets/main_layout.dart';
 import 'package:short_video_flutter/pages/trending_sounds/trending_sounds_page.dart';
+import 'package:short_video_flutter/pages/trending_hashtag/trending_hashtag_page.dart';
 
 part 'routes.g.dart';
 
@@ -66,6 +67,16 @@ class TrendingSoundsRoute extends GoRouteData with $TrendingSoundsRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       const TrendingSoundsPage();
+}
+
+// 趋势页
+@TypedGoRoute<TrendingHashtagRoute>(path: '/trending-hashtag')
+class TrendingHashtagRoute extends GoRouteData with $TrendingHashtagRoute {
+  const TrendingHashtagRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      const TrendingHashtagPage();
 }
 
 // 消息页
