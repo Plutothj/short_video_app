@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:short_video_flutter/pages/home/home_page.dart';
-import 'package:short_video_flutter/pages/login/login_page.dart';
+// import 'package:short_video_flutter/pages/login/login_page.dart';
 import 'package:short_video_flutter/pages/profile/profile_page.dart';
 import 'package:short_video_flutter/pages/inbox/inbox_page.dart';
 import 'package:short_video_flutter/pages/discover/discover_page.dart';
@@ -30,15 +30,15 @@ class MainLayoutRoute extends ShellRouteData {
   }
 }
 
-// 登录页（独立，不在底部导航内）
-@TypedGoRoute<LoginRoute>(path: '/login')
-class LoginRoute extends GoRouteData with $LoginRoute {
-  const LoginRoute();
+// // 登录页（独立，不在底部导航内）
+// @TypedGoRoute<LoginRoute>(path: '/login')
+// class LoginRoute extends GoRouteData with $LoginRoute {
+//   const LoginRoute();
 
-  @override
-  Widget build(BuildContext context, GoRouterState state) =>
-      const LoginScreen();
-}
+//   @override
+//   Widget build(BuildContext context, GoRouterState state) =>
+//       const LoginScreen();
+// }
 
 // 首页
 @TypedGoRoute<HomeRoute>(path: '/')

@@ -1,35 +1,23 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:short_video_flutter/utils/logger.dart';
+
 import 'package:short_video_flutter/pages/home/home_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:short_video_flutter/pages/home/api/index.dart';
-import 'package:short_video_flutter/pages/home/model/video_item_model.dart';
+import 'package:short_video_flutter/pages/home/model/video_data_model.dart';
 
 // 使用 AsyncNotifier 处理复杂的异步状态
 
 class HomeNotifier extends AsyncNotifier<HomeState> {
-  // 辅助方法：安全地将动态类型转换为 int
-  int? _parseToInt(dynamic value) {
-    if (value == null) return null;
-    if (value is int) return value;
-    if (value is double) return value.round();
-    if (value is String) {
-      // 尝试解析字符串
-      final doubleValue = double.tryParse(value);
-      return doubleValue?.round();
-    }
-    return null;
-  }
-
   @override
   Future<HomeState> build() async {
     return HomeState(
       videos: [],
       currentTab: 2,
       tabList: [
-        {'title': 'Following', 'width': 77.w},
-        {'title': 'Friends', 'width': 59.w},
-        {'title': 'For You', 'width': 60.w},
+        {'title': '关注', 'width': 50.w},
+        {'title': '好友', 'width': 50.w},
+        {'title': '推荐', 'width': 50.w},
       ],
       currentIndex: 0,
     );
@@ -41,47 +29,23 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
     state = const AsyncValue.loading();
 
     try {
-      // 并行请求多个接口
-      final results = await Future.wait([
-        PlayerServices.getPlayerDetail({'drama_id': 49}),
-        PlayerServices.getPlayerPage({'drama_id': 49, 'page': 1}),
-      ]);
-
-      final playerDetail = results[0];
-      final playerPage = results[1];
-      logger.d('PlayerDetail: $playerDetail');
-      logger.d('PlayerPage: ${playerPage.toString()}');
-
-      // 合并数据并更新状态
-      final currentState = state.value ?? await build();
-
-      // 安全地提取视频数据
-      final pageVideos = <VideoItemModel>[];
-
-      if (playerPage['list'] != null && playerPage['list'] is List) {
-        for (var item in playerPage['list']) {
-          try {
-            if (item != null && item is Map<String, dynamic>) {
-              // 确保必需字段存在并有默认值，处理数字类型转换
-              final videoItem = VideoItemModel(
-                ep: item['ep']?.toString() ?? '',
-                coverUrl: item['cover_url']?.toString() ?? '',
-                like: _parseToInt(item['like']) ?? 0,
-                like_number: _parseToInt(item['like_number']) ?? 0,
-                collect: _parseToInt(item['collect']) ?? 0,
-                collect_number: _parseToInt(item['collect_number']) ?? 0,
-              );
-              pageVideos.add(videoItem);
-            }
-          } catch (e) {
-            logger.d('解析视频数据失败: $e, 数据: $item');
-            // 跳过有问题的数据项
-            continue;
-          }
-        }
-      }
-
-      state = AsyncValue.data(currentState.copyWith(videos: pageVideos));
+      // 加载本地json
+      final videoData = await rootBundle.loadString(
+        'assets/db/video_data.json',
+      );
+      final videoDataList = videoDataFromJson(videoData);
+      final videos = videoDataList
+          .map((video) => VideoData.fromJson(video.toJson()))
+          .toList();
+      state = AsyncValue.data(
+        state.value?.copyWith(videos: videos) ??
+            HomeState(
+              videos: videos,
+              currentTab: 0,
+              tabList: [],
+              currentIndex: 0,
+            ),
+      );
     } catch (error, stackTrace) {
       // 错误处理
       state = AsyncValue.error(error, stackTrace);
@@ -116,3 +80,68 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
 final homeProvider = AsyncNotifierProvider<HomeNotifier, HomeState>(() {
   return HomeNotifier();
 });
+
+// 全局缓存已加载的评论数据
+final _commentsCache = <String, CommentsState>{};
+
+// 定义一个评论的provider
+final commentsProvider = AsyncNotifierProvider<CommentsNotifier, CommentsState>(
+  () {
+    return CommentsNotifier();
+  },
+);
+
+class CommentsNotifier extends AsyncNotifier<CommentsState> {
+  // 当前处理的videoId
+  String? _currentVideoId;
+
+  @override
+  Future<CommentsState> build() async {
+    // 返回空状态，实际数据通过loadComments加载
+    return CommentsState(comments: []);
+  }
+
+  Future<void> loadComments(String videoId) async {
+    _currentVideoId = videoId;
+
+    // 检查缓存
+    if (_commentsCache.containsKey(videoId)) {
+      state = AsyncValue.data(_commentsCache[videoId]!);
+      return;
+    }
+
+    // 设置加载状态
+    state = const AsyncValue.loading();
+
+    try {
+      final comments = await PlayerServices.getVideoComments({
+        'video_id': videoId,
+      });
+
+      final commentsState = CommentsState(comments: comments);
+
+      // 缓存数据
+      _commentsCache[videoId] = commentsState;
+
+      // 只有当前videoId匹配时才更新状态
+      if (_currentVideoId == videoId) {
+        state = AsyncValue.data(commentsState);
+      }
+    } catch (error, stackTrace) {
+      // 只有当前videoId匹配时才更新状态
+      if (_currentVideoId == videoId) {
+        state = AsyncValue.error(error, stackTrace);
+      }
+    }
+  }
+
+  // 清除特定视频的缓存
+  void clearCache(String videoId) {
+    _commentsCache.remove(videoId);
+  }
+
+  // 清除所有缓存
+  void clearAllCache() {
+    _commentsCache.clear();
+  }
+}

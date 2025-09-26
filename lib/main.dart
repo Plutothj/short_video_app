@@ -6,6 +6,7 @@ import 'package:short_video_flutter/utils/http.dart';
 import 'package:short_video_flutter/routes/app_router.dart';
 import 'package:short_video_flutter/theme/theme.dart';
 import 'package:short_video_flutter/provider/theme_provider.dart';
+import 'package:short_video_flutter/provider/auth_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,12 +33,34 @@ base class LoggerObserver extends ProviderObserver {
   }
 }
 
-class MyApp extends ConsumerWidget {
+class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // 应用启动时自动获取用户信息
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeAuth();
+    });
+  }
+
+  Future<void> _initializeAuth() async {
+    try {
+      await ref.read(authProvider.notifier).getUserInfo();
+      logger.d('用户信息初始化成功');
+    } catch (e) {
+      logger.d('用户信息初始化失败: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
     return ScreenUtilInit(

@@ -35,6 +35,10 @@ class TabNotifier extends Notifier<TabState> {
       currentIndex: 0,
     );
   }
+
+  void setCurrentPage(int page) {
+    state = state.copyWith(currentTab: page, currentIndex: page);
+  }
 }
 
 final profileProvider = AsyncNotifierProvider<ProfileNotifier, ProfileState>(

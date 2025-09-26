@@ -19,7 +19,7 @@ class HttpUtil {
   Future<void> init() async {
     prefs = await SharedPreferences.getInstance();
     BaseOptions options = BaseOptions(
-      baseUrl: 'https://api.clipdrama.com',
+      baseUrl: 'https://dy.2study.top',
       connectTimeout: const Duration(seconds: 30),
       receiveTimeout: const Duration(seconds: 30),
       headers: {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:short_video_flutter/theme/theme.dart';
 import 'package:short_video_flutter/provider/theme_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,13 +8,16 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:short_video_flutter/pages/profile/provider/profile_provider.dart';
+import 'package:short_video_flutter/provider/auth_provider.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   final String userId;
 
   const ProfileScreen({super.key, required this.userId});
 
-  Widget _buildProfileTopInfo() {
+  Widget _buildProfileTopInfo(WidgetRef ref) {
+    final user = ref.watch(authProvider).value?.user;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -26,11 +30,14 @@ class ProfileScreen extends HookConsumerWidget {
           child: Stack(
             children: [
               Positioned.fill(
-                child: Image.asset(
-                  'assets/images/Ellipse.webp',
-                  fit: BoxFit.contain,
-                  width: 120.w,
-                  height: 120.h,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(120.r),
+                  child: CachedNetworkImage(
+                    imageUrl: user?.avatar168X168.urlList[0] ?? '',
+                    fit: BoxFit.contain,
+                    width: 120.w,
+                    height: 120.h,
+                  ),
                 ),
               ),
               Positioned(
@@ -49,7 +56,7 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
         Text(
-          '@Andrewkhan',
+          '@${user?.nickname ?? ''}',
           style: TextStyle(
             fontFamily: 'Urbanist',
             fontSize: 20.sp,
@@ -59,7 +66,7 @@ class ProfileScreen extends HookConsumerWidget {
           ),
         ),
         Text(
-          'Designer & Videographer',
+          user?.signature ?? '',
           style: TextStyle(
             fontFamily: 'Urbanist',
             fontSize: 14.sp,
@@ -191,10 +198,11 @@ class ProfileScreen extends HookConsumerWidget {
   }
 
   // 四个tab切换
-  Widget _buildTabSwitch(TabController tabController) {
+  Widget _buildTabSwitch(PageController pageController) {
     return Consumer(
       builder: (context, ref, child) {
         final tabList = ref.watch(tabProvider).tabList;
+        final currentPageIndex = ref.watch(tabProvider).currentTab;
 
         // // 加载或空数据时，避免渲染空 TabBar 造成与 TabController 长度不一致
         // if (tabList.isEmpty) {
@@ -218,30 +226,53 @@ class ProfileScreen extends HookConsumerWidget {
             color: Colors.white,
             border: Border(bottom: BorderSide(color: Colors.grey[300]!)),
           ),
-          child: TabBar(
-            controller: tabController,
-            // 让底部横条充满子元素宽度
-            indicatorWeight: 4.h,
-            indicatorPadding: EdgeInsets.zero,
-            indicatorSize: TabBarIndicatorSize.tab,
-            tabs: List.generate(tabList.length, (index) {
-              return Tab(
-                child: AnimatedBuilder(
-                  animation: tabController,
-                  builder: (context, child) {
-                    return SvgPicture.asset(
-                      tabList[index],
-                      width: 24.w,
-                      height: 24.h,
-                      colorFilter: tabController.index == index
-                          ? ColorFilter.mode(AppColors.primary, BlendMode.srcIn)
-                          : ColorFilter.mode(
-                              AppColors.grey300,
-                              BlendMode.srcIn,
-                            ),
-                      fit: BoxFit.contain,
+          child: Row(
+            children: List.generate(tabList.length, (index) {
+              final isSelected = currentPageIndex == index;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    ref.read(tabProvider.notifier).setCurrentPage(index);
+                    pageController.animateToPage(
+                      index,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
                     );
                   },
+                  child: Container(
+                    height: 48.h,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          tabList[index],
+                          width: 24.w,
+                          height: 24.h,
+                          colorFilter: isSelected
+                              ? ColorFilter.mode(
+                                  AppColors.primary,
+                                  BlendMode.srcIn,
+                                )
+                              : ColorFilter.mode(
+                                  AppColors.grey300,
+                                  BlendMode.srcIn,
+                                ),
+                          fit: BoxFit.contain,
+                        ),
+                        SizedBox(height: 4.h),
+                        Container(
+                          height: 4.h,
+                          width: 24.w,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(2.r),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             }),
@@ -251,10 +282,17 @@ class ProfileScreen extends HookConsumerWidget {
     );
   }
 
-  // 四个tab容器
-  Widget _buildTabContainer(TabController tabController, WidgetRef ref) {
-    return TabBarView(
-      controller: tabController,
+  // 四个页面容器
+  Widget _buildPageContainer(PageController pageController, WidgetRef ref) {
+    return PageView(
+      controller: pageController,
+      onPageChanged: (index) {
+        // 同步更新当前页面状态
+        final currentPage = ref.read(tabProvider).currentTab;
+        if (currentPage != index) {
+          ref.read(tabProvider.notifier).setCurrentPage(index);
+        }
+      },
       children: [
         _buildPostsTab(),
         _buildFollowersTab(),
@@ -268,16 +306,11 @@ class ProfileScreen extends HookConsumerWidget {
   Widget _buildPostsTab() {
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(), // 禁用内部滚动，跟随外层滚动
-        shrinkWrap: true, // 让GridView根据内容自适应高度
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          mainAxisSpacing: 10, // 👉 主轴方向间距（垂直方向 item 上下间距）
-          crossAxisSpacing: 10, // 👉 交叉轴方向间距（水平方向 item 左右间距）
-          childAspectRatio: 3 / 5,
-        ),
+      child: AlignedGridView.count(
         itemCount: 60,
+        crossAxisCount: 3,
+        mainAxisSpacing: 4,
+        crossAxisSpacing: 4,
         itemBuilder: (context, index) {
           return Container(
             width: 120.w,
@@ -307,7 +340,8 @@ class ProfileScreen extends HookConsumerWidget {
     return Container();
   }
 
-  Widget _buildUserModal(BuildContext context) {
+  Widget _buildUserModal(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(authProvider).value?.user;
     return Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 12.h),
@@ -345,17 +379,38 @@ class ProfileScreen extends HookConsumerWidget {
           Row(
             spacing: 12.w,
             children: [
-              Image.asset(
-                'assets/images/Ellipse.webp',
-                width: 60.w,
-                height: 60.h,
-              ),
+              user?.avatar168X168.uri != null &&
+                      user!.avatar168X168.uri.isNotEmpty
+                  ? Image.network(
+                      user.avatar168X168.uri,
+                      width: 60.w,
+                      height: 60.h,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60.w,
+                        height: 60.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.person, size: 30.w),
+                      ),
+                    )
+                  : Container(
+                      width: 60.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, size: 30.w),
+                    ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4.h,
                 children: [
                   Text(
-                    'Andrewkhan',
+                    user?.nickname ?? '',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -363,7 +418,7 @@ class ProfileScreen extends HookConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Designer & Videographer',
+                    user?.signature ?? '',
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.normal,
@@ -378,17 +433,38 @@ class ProfileScreen extends HookConsumerWidget {
           Row(
             spacing: 12.w,
             children: [
-              Image.asset(
-                'assets/images/Ellipse.webp',
-                width: 60.w,
-                height: 60.h,
-              ),
+              user?.avatar168X168.uri != null &&
+                      user!.avatar168X168.uri.isNotEmpty
+                  ? Image.network(
+                      user.avatar168X168.uri,
+                      width: 60.w,
+                      height: 60.h,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60.w,
+                        height: 60.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.person, size: 30.w),
+                      ),
+                    )
+                  : Container(
+                      width: 60.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, size: 30.w),
+                    ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4.h,
                 children: [
                   Text(
-                    'Andrewkhan',
+                    user?.nickname ?? '',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -396,7 +472,7 @@ class ProfileScreen extends HookConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Designer & Videographer',
+                    user?.signature ?? '',
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.normal,
@@ -411,17 +487,38 @@ class ProfileScreen extends HookConsumerWidget {
           Row(
             spacing: 12.w,
             children: [
-              Image.asset(
-                'assets/images/Ellipse.webp',
-                width: 60.w,
-                height: 60.h,
-              ),
+              user?.avatar168X168.uri != null &&
+                      user!.avatar168X168.uri.isNotEmpty
+                  ? Image.network(
+                      user.avatar168X168.uri,
+                      width: 60.w,
+                      height: 60.h,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60.w,
+                        height: 60.h,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.person, size: 30.w),
+                      ),
+                    )
+                  : Container(
+                      width: 60.w,
+                      height: 60.h,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, size: 30.w),
+                    ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 4.h,
                 children: [
                   Text(
-                    'Andrewkhan',
+                    user?.nickname ?? '',
                     style: TextStyle(
                       fontSize: 24.sp,
                       fontWeight: FontWeight.bold,
@@ -429,7 +526,7 @@ class ProfileScreen extends HookConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Designer & Videographer',
+                    user?.signature ?? '',
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.normal,
@@ -470,7 +567,9 @@ class ProfileScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(isDarkModeProvider);
 
-    final tabController = useTabController(initialLength: 4);
+    final pageController = usePageController(initialPage: 0);
+
+    final user = ref.watch(authProvider).value?.user;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -488,7 +587,7 @@ class ProfileScreen extends HookConsumerWidget {
             SizedBox(
               width: 109.w,
               child: Text(
-                'Andrewkhan',
+                user?.nickname ?? '',
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -512,7 +611,7 @@ class ProfileScreen extends HookConsumerWidget {
                   backgroundColor: Colors.transparent,
                   barrierColor: Colors.black.withValues(alpha: 0.5),
                   useRootNavigator: true,
-                  builder: (context) => _buildUserModal(context),
+                  builder: (context) => _buildUserModal(context, ref),
                 ),
               },
               icon: Image.asset(
@@ -547,7 +646,7 @@ class ProfileScreen extends HookConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _buildProfileTopInfo(),
+              _buildProfileTopInfo(ref),
               SizedBox(height: 20.h),
               _buildProfileNumberInfo(),
 
@@ -583,12 +682,14 @@ class ProfileScreen extends HookConsumerWidget {
 
               SizedBox(height: 20.h),
 
-              _buildTabSwitch(tabController),
+              _buildTabSwitch(pageController),
 
-              // TabBarView 需要明确的高度约束
+              // 使用固定高度的 PageView 容器，避免高度约束问题
               SizedBox(
-                height: 600.h, // 给TabBarView设置一个足够的高度
-                child: _buildTabContainer(tabController, ref),
+                height:
+                    MediaQuery.of(context).size.height *
+                    0.6, // 给 PageView 一个固定高度
+                child: _buildPageContainer(pageController, ref),
               ),
             ],
           ),

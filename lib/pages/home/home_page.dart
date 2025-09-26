@@ -4,11 +4,12 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:short_video_flutter/theme/theme.dart';
+import 'package:short_video_flutter/utils/format.dart';
 import 'package:short_video_flutter/utils/logger.dart';
 
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:short_video_flutter/pages/home/widgets/video_player_manger.dart';
-// import 'package:short_video_flutter/pages/home/widgets/video_player.dart';
+import 'package:short_video_flutter/pages/home/widgets/video_player.dart';
 
 import 'package:short_video_flutter/pages/home/home_provider.dart';
 // import 'package:short_video_flutter/pages/home/hooks/use_debounced_page_listener.dart';
@@ -122,16 +123,20 @@ class HomeScreen extends HookConsumerWidget {
             itemBuilder: (context, index) {
               return Container(
                 margin: EdgeInsets.only(bottom: 72.h),
-                height: MediaQuery.of(context).size.height,
+
                 child: ClipRRect(
-                  borderRadius: BorderRadius.circular(5),
-                  child: Container(color: Colors.red),
-                  // VideoPlayer(
-                  //   pageController: pageController,
-                  //   url: homeState.videos[index].ep,
-                  //   flickMultiManager: playMuitManger,
-                  //   image: homeState.videos[index].coverUrl, // 使用本地资源作为占位图片
-                  // ),
+                  key: ObjectKey(homeState.videos[index]),
+                  child: VideoPlayer(
+                    pageController: pageController,
+                    url: homeState.videos[index].video.playAddr.urlList[0],
+                    flickMultiManager: playMuitManger,
+                    image: Format.formatImageUrl(
+                      homeState.videos[index].author.nickname,
+                    ),
+                    videoWidth: homeState.videos[index].video.playAddr.width,
+                    videoHeight: homeState.videos[index].video.playAddr.height,
+                    // 使用本地资源作为占位图片
+                  ),
                 ),
               );
             },

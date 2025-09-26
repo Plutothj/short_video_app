@@ -9,6 +9,8 @@ import 'package:short_video_flutter/pages/home/home_provider.dart';
 import 'package:short_video_flutter/pages/home/widgets/comments_modal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:short_video_flutter/utils/format.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class VideoPlayeControls extends HookConsumerWidget {
   const VideoPlayeControls({
@@ -110,7 +112,7 @@ class VideoPlayeControls extends HookConsumerWidget {
               child: Center(
                 child: FlickAutoHideChild(
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsetsGeometry.only(top: 180.h),
                     child: FlickPlayToggle(
                       size: 50,
                       playChild: Image.asset(
@@ -158,15 +160,28 @@ class VideoPlayeControls extends HookConsumerWidget {
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Image.asset(
-                                  'assets/images/avtar.png',
-                                  width: 60.w,
-                                  height: 60.h,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(30),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        videoPlayList?[currentPlayIndex ?? 0]
+                                            .author
+                                            .avatar168X168
+                                            .urlList[0] ??
+                                        '',
+                                    width: 60.w,
+                                    height: 60.h,
+                                  ),
                                 ),
+
                                 Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Jenny Wilson',
+                                      videoPlayList?[currentPlayIndex ?? 0]
+                                              .author
+                                              .nickname ??
+                                          '',
                                       style: TextStyle(
                                         fontSize: 18.sp,
                                         fontWeight: FontWeight.w500,
@@ -186,24 +201,36 @@ class VideoPlayeControls extends HookConsumerWidget {
                               ],
                             ),
                             Text(
-                              'Hi everyone, in this video I will sing a song#song#music#love#beauty',
+                              videoPlayList?[currentPlayIndex ?? 0].desc ?? '',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             Row(
                               spacing: 8.w,
                               children: [
-                                Image.asset(
-                                  'assets/images/music_big.webp',
-                                  width: 24.w,
-                                  height: 24.h,
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                  child: CachedNetworkImage(
+                                    imageUrl:
+                                        videoPlayList?[currentPlayIndex ?? 0]
+                                            .music
+                                            .coverThumb
+                                            .urlList[0] ??
+                                        '',
+                                    width: 16.w,
+                                    height: 16.h,
+                                  ),
                                 ),
+
                                 SvgPicture.asset(
                                   'assets/svg/music.svg',
                                   width: 16.w,
                                   height: 16.h,
                                 ),
                                 Text(
-                                  "Favorite Girl by Justin Bieber",
+                                  videoPlayList?[currentPlayIndex ?? 0]
+                                          .music
+                                          .title ??
+                                      '',
                                   style: Theme.of(context).textTheme.bodySmall,
                                 ),
                               ],
@@ -217,11 +244,11 @@ class VideoPlayeControls extends HookConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           spacing: 24.h,
                           children: [
-                            SvgPicture.asset(
-                              "assets/svg/hongqi.svg",
-                              width: 24.w,
-                              height: 24.h,
-                            ),
+                            // SvgPicture.asset(
+                            //   "assets/svg/hongqi.svg",
+                            //   width: 24.w,
+                            //   height: 24.h,
+                            // ),
                             Column(
                               spacing: 4.h,
                               children: [
@@ -231,7 +258,8 @@ class VideoPlayeControls extends HookConsumerWidget {
                                   height: 36.h,
                                   colorFilter: ColorFilter.mode(
                                     videoPlayList?[currentPlayIndex ?? 0]
-                                                .like_number ==
+                                                .statistics
+                                                .diggCount ==
                                             1
                                         ? AppColors.primary
                                         : Colors.white,
@@ -239,10 +267,12 @@ class VideoPlayeControls extends HookConsumerWidget {
                                   ),
                                 ),
                                 Text(
-                                  videoPlayList?[currentPlayIndex ?? 0]
-                                          .like_number
-                                          .toString() ??
-                                      '0',
+                                  Format.formatNumofW(
+                                    videoPlayList?[currentPlayIndex ?? 0]
+                                            .statistics
+                                            .diggCount ??
+                                        0,
+                                  ),
                                 ),
                               ],
                             ),
@@ -260,8 +290,13 @@ class VideoPlayeControls extends HookConsumerWidget {
                                       ),
 
                                       useRootNavigator: true,
-                                      builder: (context) =>
-                                          const CommentsModal(),
+                                      builder: (context) => CommentsModal(
+                                        videoId:
+                                            videoPlayList?[currentPlayIndex ??
+                                                    0]
+                                                .awemeId ??
+                                            '',
+                                      ),
                                     );
                                   },
                                   child: SvgPicture.asset(
@@ -271,7 +306,14 @@ class VideoPlayeControls extends HookConsumerWidget {
                                   ),
                                 ),
 
-                                Text('5678'),
+                                Text(
+                                  Format.formatNumofW(
+                                    videoPlayList?[currentPlayIndex ?? 0]
+                                            .statistics
+                                            .commentCount ??
+                                        0,
+                                  ),
+                                ),
                               ],
                             ),
                             Column(
@@ -283,10 +325,12 @@ class VideoPlayeControls extends HookConsumerWidget {
                                   height: 36.h,
                                 ),
                                 Text(
-                                  videoPlayList?[currentPlayIndex ?? 0]
-                                          .collect_number
-                                          .toString() ??
-                                      '0',
+                                  Format.formatNumofW(
+                                    videoPlayList?[currentPlayIndex ?? 0]
+                                            .statistics
+                                            .collectCount ??
+                                        0,
+                                  ),
                                 ),
                               ],
                             ),
@@ -297,7 +341,14 @@ class VideoPlayeControls extends HookConsumerWidget {
                                   width: 36.w,
                                   height: 36.h,
                                 ),
-                                Text('5678'),
+                                Text(
+                                  Format.formatNumofW(
+                                    videoPlayList?[currentPlayIndex ?? 0]
+                                            .statistics
+                                            .shareCount ??
+                                        0,
+                                  ),
+                                ),
                               ],
                             ),
                           ],
@@ -310,35 +361,29 @@ class VideoPlayeControls extends HookConsumerWidget {
             ),
           ),
 
-          FlickAutoHideChild(
-            child: AnimatedContainer(
-              duration: Duration(microseconds: 500),
-              child: Row(
-                spacing: 10.w,
-                children: [
-                  Expanded(
-                    child: FlickVideoProgressBar(
-                      flickProgressBarSettings: FlickProgressBarSettings(
-                        height: 4,
-                        curveRadius: 2,
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
+          Row(
+            spacing: 10.w,
+            children: [
+              Expanded(
+                child: FlickVideoProgressBar(
+                  flickProgressBarSettings: FlickProgressBarSettings(
+                    height: 4,
+                    curveRadius: 2,
                   ),
-                  Container(
-                    padding: EdgeInsets.all(2),
-                    decoration: BoxDecoration(
-                      color: Colors.black38,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: FlickSoundToggle(
-                      toggleMute: () => videoMultiPlayerManger?.toggleMute(),
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              Container(
+                padding: EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: FlickSoundToggle(
+                  toggleMute: () => videoMultiPlayerManger?.toggleMute(),
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
         ],
       ),
