@@ -10,6 +10,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:short_video_flutter/pages/profile/provider/profile_provider.dart';
 import 'package:short_video_flutter/provider/auth_provider.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:short_video_flutter/utils/format.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   final String userId;
@@ -33,10 +34,21 @@ class ProfileScreen extends HookConsumerWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(120.r),
                   child: CachedNetworkImage(
-                    imageUrl: user?.avatar168X168.urlList[0] ?? '',
+                    imageUrl: Uri.encodeFull(
+                      'https://p3-pc.douyinpic.com/img/aweme-avatar/tos-c…436a9ca62c0902595~c5_168x168.jpeg?from=2956013662',
+                    ),
                     fit: BoxFit.contain,
                     width: 120.w,
                     height: 120.h,
+                    errorWidget: (context, error, stackTrace) => Container(
+                      width: 120.w,
+                      height: 120.h,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person, size: 60.w),
+                    ),
                   ),
                 ),
               ),
@@ -88,7 +100,8 @@ class ProfileScreen extends HookConsumerWidget {
   }
 
   // 数字信息展示
-  Widget _buildProfileNumberInfo() {
+  Widget _buildProfileNumberInfo(WidgetRef ref) {
+    final user = ref.watch(authProvider).value?.user;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -97,7 +110,7 @@ class ProfileScreen extends HookConsumerWidget {
         Column(
           children: [
             Text(
-              '247',
+              Format.formatNumofW(user?.awemeCount ?? 0),
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 24.sp,
@@ -107,7 +120,7 @@ class ProfileScreen extends HookConsumerWidget {
               ),
             ),
             Text(
-              'Posts',
+              '获赞',
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 14.sp,
@@ -122,7 +135,7 @@ class ProfileScreen extends HookConsumerWidget {
         Column(
           children: [
             Text(
-              '368K',
+              Format.formatNumofW(user?.followingCount ?? 0),
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 24.sp,
@@ -132,7 +145,7 @@ class ProfileScreen extends HookConsumerWidget {
               ),
             ),
             Text(
-              'Followers',
+              '朋友',
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 14.sp,
@@ -147,7 +160,7 @@ class ProfileScreen extends HookConsumerWidget {
         Column(
           children: [
             Text(
-              '374',
+              Format.formatNumofW(user?.followingCount ?? 0),
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 24.sp,
@@ -157,7 +170,7 @@ class ProfileScreen extends HookConsumerWidget {
               ),
             ),
             Text(
-              'Following',
+              '关注',
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 14.sp,
@@ -172,7 +185,7 @@ class ProfileScreen extends HookConsumerWidget {
         Column(
           children: [
             Text(
-              '3.7M',
+              Format.formatNumofW(user?.followerCount ?? 0),
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 24.sp,
@@ -182,7 +195,7 @@ class ProfileScreen extends HookConsumerWidget {
               ),
             ),
             Text(
-              'Likes',
+              '粉丝',
               style: TextStyle(
                 fontFamily: 'Urbanist',
                 fontSize: 14.sp,
@@ -294,7 +307,7 @@ class ProfileScreen extends HookConsumerWidget {
         }
       },
       children: [
-        _buildPostsTab(),
+        _buildPostsTab(ref),
         _buildFollowersTab(),
         _buildFollowingTab(),
         _buildLikesTab(),
@@ -303,11 +316,12 @@ class ProfileScreen extends HookConsumerWidget {
   }
 
   // 四个tab内容
-  Widget _buildPostsTab() {
+  Widget _buildPostsTab(WidgetRef ref) {
+    final postsList = ref.watch(profileProvider).value?.postsList ?? [];
     return Padding(
       padding: EdgeInsets.only(top: 20.h),
       child: AlignedGridView.count(
-        itemCount: 60,
+        itemCount: postsList.length,
         crossAxisCount: 3,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
@@ -315,12 +329,68 @@ class ProfileScreen extends HookConsumerWidget {
           return Container(
             width: 120.w,
             height: 200.h,
+            padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 4.h),
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8.r),
               image: DecorationImage(
-                image: AssetImage('assets/images/girls_2.webp'),
+                image: CachedNetworkImageProvider(
+                  Format.formatImageUrl(
+                    postsList[index].video.cover.urlList[0],
+                  ),
+                ),
                 fit: BoxFit.cover,
               ),
-              borderRadius: BorderRadius.circular(8.r),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                postsList[index].isTop == 1
+                    ? Container(
+                        width: 36.w,
+                        height: 20.h,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+                          borderRadius: BorderRadius.circular(4.r),
+                        ),
+
+                        child: Center(
+                          child: Text(
+                            '置顶',
+                            style: TextStyle(
+                              fontSize: 10.sp,
+                              fontWeight: FontWeight.normal,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(),
+                Row(
+                  spacing: 4.w,
+                  children: [
+                    SvgPicture.asset(
+                      'assets/svg/heart.svg',
+                      width: 14.w,
+                      height: 14.h,
+                      colorFilter: ColorFilter.mode(
+                        Colors.white,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    Text(
+                      Format.formatNumofW(
+                        postsList[index].statistics.diggCount,
+                      ),
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         },
@@ -570,6 +640,13 @@ class ProfileScreen extends HookConsumerWidget {
     final pageController = usePageController(initialPage: 0);
 
     final user = ref.watch(authProvider).value?.user;
+
+    useEffect(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(profileProvider.notifier).loadPostsList();
+      });
+      return null;
+    }, []);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -648,7 +725,7 @@ class ProfileScreen extends HookConsumerWidget {
             children: [
               _buildProfileTopInfo(ref),
               SizedBox(height: 20.h),
-              _buildProfileNumberInfo(),
+              _buildProfileNumberInfo(ref),
 
               SizedBox(height: 20.h),
 

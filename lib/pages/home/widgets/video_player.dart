@@ -75,19 +75,25 @@ class VideoPlayer extends HookConsumerWidget {
           ..setLooping(true), // 关闭循环播放，让 onVideoEnd 可以触发
         autoPlay: true,
         onVideoEnd: () {
-          logger.d("onVideoEnd");
-          // pageController.nextPage(
-          //   duration: const Duration(milliseconds: 300),
-          //   curve: Curves.easeInOut,
-          // );
+          if (context.mounted) {
+            logger.d("onVideoEnd");
+            // pageController.nextPage(
+            //   duration: const Duration(milliseconds: 300),
+            //   curve: Curves.easeInOut,
+            // );
+          }
         },
       ),
     );
 
     // 使用 useEffect 处理初始化和清理
     useEffect(() {
-      // 初始化
-      flickMultiManager.init(flickManager);
+      // 延迟初始化，确保 widget 已经完全挂载
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) {
+          flickMultiManager.init(flickManager);
+        }
+      });
 
       // 清理函数
       return () {

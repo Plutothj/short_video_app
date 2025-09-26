@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:short_video_flutter/pages/home/home_provider.dart';
 import 'package:short_video_flutter/pages/home/widgets/comments_modal.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
+// import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:short_video_flutter/utils/format.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -25,10 +25,9 @@ class VideoPlayeControls extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // 通过 FlickManager 获取 DisplayManager
-    final displayManager = useMemoized(() => flickManager?.flickDisplayManager);
+    // final displayManager = useMemoized(() => flickManager?.flickDisplayManager);
     final homeState = ref.watch(homeProvider);
-    final currentTab = homeState.value?.currentTab;
-    final tabList = homeState.value?.tabList;
+
     final currentPlayIndex = homeState.value?.currentIndex;
     final videoPlayList = homeState.value?.videos;
 
@@ -38,74 +37,6 @@ class VideoPlayeControls extends HookConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: <Widget>[
-          FlickAutoHideChild(
-            autoHide: false,
-            showIfVideoNotInitialized: false,
-            child: Padding(
-              padding: EdgeInsetsGeometry.only(top: 50.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Image.asset(
-                    'assets/icons/live_icon.png',
-                    width: 28.w,
-                    height: 28.h,
-                  ),
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: 20.w,
-                      children: [
-                        ...tabList!.asMap().entries.map(
-                          (entry) => GestureDetector(
-                            key: Key(entry.key.toString()),
-                            onTap: () {
-                              ref
-                                  .read(homeProvider.notifier)
-                                  .setCurrentTab(entry.key);
-                              displayManager?.handleShowPlayerControls();
-                            },
-                            child: Column(
-                              children: [
-                                Text(
-                                  entry.value['title'],
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.w500,
-                                    color: currentTab == entry.key
-                                        ? AppColors.primary
-                                        : Colors.white,
-                                  ),
-                                ),
-                                SizedBox(height: 12.w),
-                                Container(
-                                  width: entry.value['width'],
-                                  height: currentTab == entry.key ? 3.h : 2.h,
-                                  decoration: BoxDecoration(
-                                    color: currentTab == entry.key
-                                        ? AppColors.primary
-                                        : Colors.white,
-
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  Image.asset(
-                    'assets/icons/search_icon.png',
-                    width: 28.w,
-                    height: 28.h,
-                  ),
-                ],
-              ),
-            ),
-          ),
           Expanded(
             child: FlickShowControlsAction(
               behavior: HitTestBehavior.opaque,

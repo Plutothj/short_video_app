@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:short_video_flutter/pages/profile/provider/profile_state.dart';
+import 'package:short_video_flutter/pages/profile/api/index.dart';
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   @override
@@ -17,6 +18,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
   //   final postsList = await ProfileServices.getPostsList({});
   //   state = AsyncValue.data(currentState.copyWith(postsList: postsList));
   // }
+
+  Future<void> loadPostsList() async {
+    final currentState = state.value ?? await build();
+    final postsList = await ProfileServices.getPostsVideoList();
+    state = AsyncValue.data(currentState.copyWith(postsList: postsList));
+  }
 }
 
 // 不用异步构建，直接构建

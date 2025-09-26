@@ -70,8 +70,22 @@ class _MyAppState extends ConsumerState<MyApp> {
       builder: (context, child) => MaterialApp.router(
         routerConfig: createAppRouter(ref),
         title: 'Short Video',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
+        theme: AppTheme.lightTheme.copyWith(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
+        ),
+        darkTheme: AppTheme.darkTheme.copyWith(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
+        ),
         themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
       ),
     );

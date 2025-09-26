@@ -63,29 +63,180 @@ class VideoData {
     awemeId: json["aweme_id"] ?? "",
     desc: json["desc"] ?? "",
     createTime: json["create_time"] ?? 0,
-    music: Music.fromJson(json["music"]),
-    video: Video.fromJson(json["video"]),
+    music: json["music"] != null
+        ? Music.fromJson(json["music"])
+        : Music(
+            id: 0.0,
+            title: "",
+            author: "",
+            coverMedium: Avatar168X168(
+              height: 0,
+              uri: "",
+              urlList: [],
+              width: 0,
+            ),
+            coverThumb: Avatar168X168(
+              height: 0,
+              uri: "",
+              urlList: [],
+              width: 0,
+            ),
+            playUrl: Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
+            duration: 0,
+            userCount: 0,
+            ownerId: "",
+            ownerNickname: "",
+            isOriginal: false,
+          ),
+    video: json["video"] != null
+        ? Video.fromJson(json["video"])
+        : Video(
+            playAddr: PlayAddr(
+              uri: "",
+              urlList: [],
+              width: 0,
+              height: 0,
+              urlKey: "",
+              dataSize: 0,
+              fileHash: "",
+              fileCs: "",
+            ),
+            cover: Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
+            poster: "",
+            height: 0,
+            width: 0,
+            ratio: "",
+            useStaticCover: false,
+            duration: 0,
+          ),
     shareUrl: json["share_url"] ?? "",
-    statistics: Statistics.fromJson(json["statistics"]),
-    status: Status.fromJson(json["status"]),
+    statistics: json["statistics"] != null
+        ? Statistics.fromJson(json["statistics"])
+        : Statistics(
+            admireCount: 0,
+            commentCount: 0,
+            diggCount: 0,
+            collectCount: 0,
+            playCount: 0,
+            shareCount: 0,
+          ),
+    status: json["status"] != null
+        ? Status.fromJson(json["status"])
+        : Status(
+            listenVideoStatus: 0,
+            isDelete: false,
+            allowShare: false,
+            isProhibited: false,
+            inReviewing: false,
+            partSee: 0,
+            privateStatus: 0,
+            reviewResult: ReviewResult(reviewStatus: 0),
+          ),
     textExtra: json["text_extra"] != null
         ? List<TextExtra>.from(
             json["text_extra"].map((x) => TextExtra.fromJson(x)),
           )
         : [],
     isTop: json["is_top"] ?? 0,
-    shareInfo: VideoDatumShareInfo.fromJson(json["share_info"]),
+    shareInfo: json["share_info"] != null
+        ? VideoDatumShareInfo.fromJson(json["share_info"])
+        : VideoDatumShareInfo(shareUrl: "", shareLinkDesc: ""),
     duration: json["duration"] ?? 0,
     imageInfos: json["image_infos"],
-    riskInfos: RiskInfos.fromJson(json["risk_infos"]),
+    riskInfos: json["risk_infos"] != null
+        ? RiskInfos.fromJson(json["risk_infos"])
+        : RiskInfos(
+            vote: false,
+            warn: false,
+            riskSink: false,
+            type: 0,
+            content: "",
+          ),
     position: json["position"],
     authorUserId: json["author_user_id"] ?? 0,
-    author: Author.fromJson(json["author"]),
+    author: json["author"] != null
+        ? Author.fromJson(json["author"])
+        : Author(
+            avatar168X168: Avatar168X168(
+              height: 0,
+              uri: "",
+              urlList: [],
+              width: 0,
+            ),
+            avatar300X300: Avatar168X168(
+              height: 0,
+              uri: "",
+              urlList: [],
+              width: 0,
+            ),
+            awemeCount: 0,
+            birthdayHideLevel: 0,
+            canShowGroupCard: 0,
+            cardEntries: [],
+            city: "",
+            commerceInfo: CommerceInfo(
+              challengeList: null,
+              headImageList: null,
+              offlineInfoList: [],
+              smartPhoneList: null,
+              taskList: null,
+            ),
+            commerceUserInfo: CommerceUserInfo(
+              adRevenueRits: null,
+              hasAdsEntry: false,
+              showStarAtlasCooperation: false,
+              starAtlas: 0,
+            ),
+            commerceUserLevel: 0,
+            country: "",
+            coverColour: "",
+            coverUrl: [],
+            district: "",
+            favoritingCount: 0,
+            followStatus: 0,
+            followerCount: 0,
+            followerRequestStatus: 0,
+            followerStatus: 0,
+            followingCount: 0,
+            forwardCount: 0,
+            gender: 0,
+            ipLocation: "",
+            maxFollowerCount: 0,
+            mplatformFollowersCount: 0,
+            nickname: "",
+            province: "",
+            publicCollectsCount: 0,
+            shareInfo: AuthorShareInfo(
+              boolPersist: 0,
+              shareDesc: "",
+              shareImageUrl: CoverUrl(uri: "", urlList: []),
+              shareQrcodeUrl: CoverUrl(uri: "", urlList: []),
+              shareTitle: "",
+              shareUrl: "",
+              shareWeiboDesc: "",
+            ),
+            shortId: "",
+            signature: "",
+            totalFavorited: 0,
+            uid: "",
+            uniqueId: "",
+            userAge: 0,
+            whiteCoverUrl: [],
+          ),
     preventDownload: json["prevent_download"] ?? false,
     longVideo: json["long_video"],
-    awemeControl: AwemeControl.fromJson(json["aweme_control"]),
+    awemeControl: json["aweme_control"] != null
+        ? AwemeControl.fromJson(json["aweme_control"])
+        : AwemeControl(
+            canForward: false,
+            canShare: false,
+            canComment: false,
+            canShowComment: false,
+          ),
     images: json["images"],
-    suggestWords: SuggestWords.fromJson(json["suggest_words"]),
+    suggestWords: json["suggest_words"] != null
+        ? SuggestWords.fromJson(json["suggest_words"])
+        : SuggestWords(suggestWords: []),
   );
 
   Map<String, dynamic> toJson() => {
@@ -192,8 +343,12 @@ class Author {
   });
 
   factory Author.fromJson(Map<String, dynamic> json) => Author(
-    avatar168X168: Avatar168X168.fromJson(json["avatar_168x168"]),
-    avatar300X300: Avatar168X168.fromJson(json["avatar_300x300"]),
+    avatar168X168: json["avatar_168x168"] != null
+        ? Avatar168X168.fromJson(json["avatar_168x168"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
+    avatar300X300: json["avatar_300x300"] != null
+        ? Avatar168X168.fromJson(json["avatar_300x300"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
     awemeCount: json["aweme_count"] ?? 0,
     birthdayHideLevel: json["birthday_hide_level"] ?? 0,
     canShowGroupCard: json["can_show_group_card"] ?? false,
@@ -203,8 +358,23 @@ class Author {
           )
         : [],
     city: json["city"] ?? "",
-    commerceInfo: CommerceInfo.fromJson(json["commerce_info"]),
-    commerceUserInfo: CommerceUserInfo.fromJson(json["commerce_user_info"]),
+    commerceInfo: json["commerce_info"] != null
+        ? CommerceInfo.fromJson(json["commerce_info"])
+        : CommerceInfo(
+            challengeList: null,
+            headImageList: null,
+            offlineInfoList: [],
+            smartPhoneList: null,
+            taskList: null,
+          ),
+    commerceUserInfo: json["commerce_user_info"] != null
+        ? CommerceUserInfo.fromJson(json["commerce_user_info"])
+        : CommerceUserInfo(
+            adRevenueRits: null,
+            hasAdsEntry: false,
+            showStarAtlasCooperation: false,
+            starAtlas: 0,
+          ),
     commerceUserLevel: json["commerce_user_level"] ?? 0,
     country: json["country"] ?? "",
     coverColour: json["cover_colour"] ?? "",
@@ -228,7 +398,17 @@ class Author {
     nickname: json["nickname"] ?? "",
     province: json["province"] ?? "",
     publicCollectsCount: json["public_collects_count"] ?? 0,
-    shareInfo: AuthorShareInfo.fromJson(json["share_info"]),
+    shareInfo: json["share_info"] != null
+        ? AuthorShareInfo.fromJson(json["share_info"])
+        : AuthorShareInfo(
+            boolPersist: 0,
+            shareDesc: "",
+            shareImageUrl: CoverUrl(uri: "", urlList: []),
+            shareQrcodeUrl: CoverUrl(uri: "", urlList: []),
+            shareTitle: "",
+            shareUrl: "",
+            shareWeiboDesc: "",
+          ),
     shortId: json["short_id"] ?? "",
     signature: json["signature"] ?? "",
     totalFavorited: json["total_favorited"] ?? 0,
@@ -335,8 +515,12 @@ class CardEntry {
 
   factory CardEntry.fromJson(Map<String, dynamic> json) => CardEntry(
     gotoUrl: json["goto_url"] ?? "",
-    iconDark: CoverUrl.fromJson(json["icon_dark"]),
-    iconLight: CoverUrl.fromJson(json["icon_light"]),
+    iconDark: json["icon_dark"] != null
+        ? CoverUrl.fromJson(json["icon_dark"])
+        : CoverUrl(uri: "", urlList: []),
+    iconLight: json["icon_light"] != null
+        ? CoverUrl.fromJson(json["icon_light"])
+        : CoverUrl(uri: "", urlList: []),
     subTitle: json["sub_title"] ?? "",
     title: json["title"] ?? "",
     type: json["type"] ?? "",
@@ -457,8 +641,12 @@ class AuthorShareInfo {
       AuthorShareInfo(
         boolPersist: json["bool_persist"],
         shareDesc: json["share_desc"],
-        shareImageUrl: CoverUrl.fromJson(json["share_image_url"]),
-        shareQrcodeUrl: CoverUrl.fromJson(json["share_qrcode_url"]),
+        shareImageUrl: json["share_image_url"] != null
+            ? CoverUrl.fromJson(json["share_image_url"])
+            : CoverUrl(uri: "", urlList: []),
+        shareQrcodeUrl: json["share_qrcode_url"] != null
+            ? CoverUrl.fromJson(json["share_qrcode_url"])
+            : CoverUrl(uri: "", urlList: []),
         shareTitle: json["share_title"],
         shareUrl: json["share_url"],
         shareWeiboDesc: json["share_weibo_desc"],
@@ -534,9 +722,15 @@ class Music {
     id: json["id"]?.toDouble() ?? 0.0,
     title: json["title"] ?? "",
     author: json["author"] ?? "",
-    coverMedium: Avatar168X168.fromJson(json["cover_medium"]),
-    coverThumb: Avatar168X168.fromJson(json["cover_thumb"]),
-    playUrl: Avatar168X168.fromJson(json["play_url"]),
+    coverMedium: json["cover_medium"] != null
+        ? Avatar168X168.fromJson(json["cover_medium"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
+    coverThumb: json["cover_thumb"] != null
+        ? Avatar168X168.fromJson(json["cover_thumb"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
+    playUrl: json["play_url"] != null
+        ? Avatar168X168.fromJson(json["play_url"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
     duration: json["duration"] ?? 0,
     userCount: json["user_count"] ?? 0,
     ownerId: json["owner_id"] ?? "",
@@ -672,9 +866,11 @@ class Status {
     allowShare: json["allow_share"] ?? false,
     isProhibited: json["is_prohibited"] ?? false,
     inReviewing: json["in_reviewing"] ?? false,
-    partSee: json["part_see"] ?? false,
+    partSee: json["part_see"] ?? 0,
     privateStatus: json["private_status"] ?? 0,
-    reviewResult: ReviewResult.fromJson(json["review_result"]),
+    reviewResult: json["review_result"] != null
+        ? ReviewResult.fromJson(json["review_result"])
+        : ReviewResult(reviewStatus: 0),
   );
 
   Map<String, dynamic> toJson() => {
@@ -838,8 +1034,21 @@ class Video {
   });
 
   factory Video.fromJson(Map<String, dynamic> json) => Video(
-    playAddr: PlayAddr.fromJson(json["play_addr"]),
-    cover: Avatar168X168.fromJson(json["cover"]),
+    playAddr: json["play_addr"] != null
+        ? PlayAddr.fromJson(json["play_addr"])
+        : PlayAddr(
+            uri: "",
+            urlList: [],
+            width: 0,
+            height: 0,
+            urlKey: "",
+            dataSize: 0,
+            fileHash: "",
+            fileCs: "",
+          ),
+    cover: json["cover"] != null
+        ? Avatar168X168.fromJson(json["cover"])
+        : Avatar168X168(height: 0, uri: "", urlList: [], width: 0),
     poster: json["poster"] ?? "",
     height: json["height"] ?? 0,
     width: json["width"] ?? 0,

@@ -32,6 +32,6 @@ class Format {
   }
 
   static String formatImageUrl(String nickname) {
-    return 'https://dy.2study.top/images/${nickname}';
+    return Uri.encodeFull('https://dy.2study.top/images/${nickname}');
   }
 }

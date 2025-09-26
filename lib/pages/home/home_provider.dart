@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:short_video_flutter/pages/home/home_state.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:short_video_flutter/pages/home/api/index.dart';
+import 'package:short_video_flutter/pages/home/model/note_data_model.dart';
 import 'package:short_video_flutter/pages/home/model/video_data_model.dart';
 
 // 使用 AsyncNotifier 处理复杂的异步状态
@@ -11,16 +12,7 @@ import 'package:short_video_flutter/pages/home/model/video_data_model.dart';
 class HomeNotifier extends AsyncNotifier<HomeState> {
   @override
   Future<HomeState> build() async {
-    return HomeState(
-      videos: [],
-      currentTab: 2,
-      tabList: [
-        {'title': '关注', 'width': 50.w},
-        {'title': '好友', 'width': 50.w},
-        {'title': '推荐', 'width': 50.w},
-      ],
-      currentIndex: 0,
-    );
+    return HomeState(videos: [], currentIndex: 0);
   }
 
   // 3. 优雅的异步方法处理
@@ -39,12 +31,7 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
           .toList();
       state = AsyncValue.data(
         state.value?.copyWith(videos: videos) ??
-            HomeState(
-              videos: videos,
-              currentTab: 0,
-              tabList: [],
-              currentIndex: 0,
-            ),
+            HomeState(videos: videos, currentIndex: 0),
       );
     } catch (error, stackTrace) {
       // 错误处理
@@ -53,19 +40,6 @@ class HomeNotifier extends AsyncNotifier<HomeState> {
   }
 
   // 4. 同步方法保持简单
-  Future<void> setCurrentTab(int currentTab) async {
-    final currentState = state.value;
-    if (currentState != null && currentState.currentTab != currentTab) {
-      state = AsyncValue.data(currentState.copyWith(currentTab: currentTab));
-    }
-  }
-
-  Future<void> setTabList(List<Map<dynamic, dynamic>> tabList) async {
-    final currentState = state.value;
-    if (currentState != null) {
-      state = AsyncValue.data(currentState.copyWith(tabList: tabList));
-    }
-  }
 
   Future<void> setCurrentIndex(int currentIndex) async {
     final currentState = state.value;
@@ -81,6 +55,28 @@ final homeProvider = AsyncNotifierProvider<HomeNotifier, HomeState>(() {
   return HomeNotifier();
 });
 
+class TabNotifier extends Notifier<TabState> {
+  @override
+  TabState build() {
+    return TabState(
+      currentTab: 3,
+      tabList: [
+        {'title': '经验', 'width': 50.w, 'index': 0},
+        {'title': '关注', 'width': 50.w, 'index': 1},
+        {'title': '好友', 'width': 50.w, 'index': 2},
+        {'title': '推荐', 'width': 50.w, 'index': 3},
+      ],
+    );
+  }
+
+  void setCurrentTab(int currentTab) {
+    state = state.copyWith(currentTab: currentTab, currentIndex: currentTab);
+  }
+}
+
+final tabProvider = NotifierProvider<TabNotifier, TabState>(() {
+  return TabNotifier();
+});
 // 全局缓存已加载的评论数据
 final _commentsCache = <String, CommentsState>{};
 
@@ -145,3 +141,30 @@ class CommentsNotifier extends AsyncNotifier<CommentsState> {
     _commentsCache.clear();
   }
 }
+
+class NotesNotifier extends AsyncNotifier<NotesState> {
+  @override
+  Future<NotesState> build() async {
+    return NotesState(notes: []);
+  }
+
+  Future<void> loadNotes() async {
+    state = const AsyncValue.loading();
+    try {
+      final notes = await PlayerServices.getNotesList();
+      state = AsyncValue.data(NotesState(notes: notes));
+    } catch (error, stackTrace) {
+      state = AsyncValue.error(error, stackTrace);
+    }
+  }
+}
+
+class NotesState {
+  final List<NoteDataModel> notes;
+
+  NotesState({required this.notes});
+}
+
+final notesProvider = AsyncNotifierProvider<NotesNotifier, NotesState>(() {
+  return NotesNotifier();
+});
